@@ -1,0 +1,387 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 39;
+	objects = {
+		195DF8CFFE9D517E11CA2CBB = {
+			children = (
+				8D0C4E970486CD37000505A6,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//190
+//191
+//192
+//193
+//194
+//200
+//201
+//202
+//203
+//204
+		20286C28FDCF999611CA2CEA = {
+			buildSettings = {
+			};
+			buildStyles = (
+				4A9504C5FFE6A39111CA0CBA,
+				4A9504C6FFE6A39111CA0CBA,
+				9B6CDDE8069E5E8400CAD736,
+			);
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = 20286C29FDCF999611CA2CEA;
+			projectDirPath = "";
+			targets = (
+				8D0C4E890486CD37000505A6,
+			);
+		};
+		20286C29FDCF999611CA2CEA = {
+			children = (
+				20286C2AFDCF999611CA2CEA,
+				9BF3936606922F5E0080B028,
+				20286C2CFDCF999611CA2CEA,
+				20286C32FDCF999611CA2CEA,
+				195DF8CFFE9D517E11CA2CBB,
+			);
+			isa = PBXGroup;
+			name = glAArg;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		20286C2AFDCF999611CA2CEA = {
+			children = (
+				20286C2BFDCF999611CA2CEA,
+			);
+			isa = PBXGroup;
+			name = Sources;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		20286C2BFDCF999611CA2CEA = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = main.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		20286C2CFDCF999611CA2CEA = {
+			children = (
+				9BA10AAF069C0BCF005AFD48,
+				8D0C4E960486CD37000505A6,
+			);
+			isa = PBXGroup;
+			name = Resources;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		20286C32FDCF999611CA2CEA = {
+			children = (
+				9BF392440691FFB90080B028,
+				9BF3922D0691FFA80080B028,
+				9BF392250691FF9E0080B028,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//200
+//201
+//202
+//203
+//204
+//4A0
+//4A1
+//4A2
+//4A3
+//4A4
+		4A9504C5FFE6A39111CA0CBA = {
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				OPTIMIZATION_CFLAGS = "-O0";
+				ZERO_LINK = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		4A9504C6FFE6A39111CA0CBA = {
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				GCC_DYNAMIC_NO_PIC = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				OPTIMIZATION_CFLAGS = "-ffast-math -fsingle-precision-constant --param max-gcse-passes=3";
+				ZERO_LINK = NO;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+//4A0
+//4A1
+//4A2
+//4A3
+//4A4
+//8D0
+//8D1
+//8D2
+//8D3
+//8D4
+		8D0C4E890486CD37000505A6 = {
+			buildPhases = (
+				8D0C4E8A0486CD37000505A6,
+				8D0C4E8C0486CD37000505A6,
+				8D0C4E8F0486CD37000505A6,
+				8D0C4E910486CD37000505A6,
+				8D0C4E940486CD37000505A6,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_ENABLE_TRIGRAPHS = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_CPU = G3;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_STYLE = Static;
+				OTHER_CFLAGS = "-force_cpusubtype_ALL";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "glAArg Demo";
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wall -Wno-four-char-constants -Wno-unknown-pragmas";
+				WRAPPER_EXTENSION = app;
+			};
+			dependencies = (
+			);
+			isa = PBXNativeTarget;
+			name = "glAArg Demo";
+			productInstallPath = "$(HOME)/Applications";
+			productName = glAArg;
+			productReference = 8D0C4E970486CD37000505A6;
+			productType = "com.apple.product-type.application";
+		};
+		8D0C4E8A0486CD37000505A6 = {
+			buildActionMask = 2147483647;
+			files = (
+				9BF3936E06922F6C0080B028,
+				9BF3936F06922F6C0080B028,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D0C4E8C0486CD37000505A6 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D0C4E8F0486CD37000505A6 = {
+			buildActionMask = 2147483647;
+			files = (
+				8D0C4E900486CD37000505A6,
+				9BF3936D06922F6C0080B028,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D0C4E900486CD37000505A6 = {
+			fileRef = 20286C2BFDCF999611CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		8D0C4E910486CD37000505A6 = {
+			buildActionMask = 2147483647;
+			files = (
+				9BF392260691FF9E0080B028,
+				9BF3922E0691FFA80080B028,
+				9BF392450691FFB90080B028,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D0C4E940486CD37000505A6 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D0C4E960486CD37000505A6 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist;
+			path = Info.plist;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8D0C4E970486CD37000505A6 = {
+			explicitFileType = wrapper.application;
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = "glAArg Demo.app";
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+//8D0
+//8D1
+//8D2
+//8D3
+//8D4
+//9B0
+//9B1
+//9B2
+//9B3
+//9B4
+		9B6CDDE8069E5E8400CAD736 = {
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				GCC_DYNAMIC_NO_PIC = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				OPTIMIZATION_CFLAGS = "-ffast-math -fsingle-precision-constant --param max-gcse-passes=3";
+				ZERO_LINK = NO;
+			};
+			isa = PBXBuildStyle;
+			name = Profile;
+		};
+		9BA10AAF069C0BCF005AFD48 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.make;
+			path = Makefile;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		9BF392250691FF9E0080B028 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = Cocoa.framework;
+			path = /System/Library/Frameworks/Cocoa.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		9BF392260691FF9E0080B028 = {
+			fileRef = 9BF392250691FF9E0080B028;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		9BF3922D0691FFA80080B028 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = GLUT.framework;
+			path = /System/Library/Frameworks/GLUT.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		9BF3922E0691FFA80080B028 = {
+			fileRef = 9BF3922D0691FFA80080B028;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		9BF392440691FFB90080B028 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = OpenGL.framework;
+			path = /System/Library/Frameworks/OpenGL.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		9BF392450691FFB90080B028 = {
+			fileRef = 9BF392440691FFB90080B028;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		9BF3936606922F5E0080B028 = {
+			children = (
+				9BF3936A06922F6C0080B028,
+				9BF3936B06922F6C0080B028,
+				9BF3936C06922F6C0080B028,
+			);
+			isa = PBXGroup;
+			name = glAArg;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		9BF3936A06922F6C0080B028 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			name = AAPrimitives.c;
+			path = glAArg/AAPrimitives.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		9BF3936B06922F6C0080B028 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = AAPrimitives.h;
+			path = glAArg/AAPrimitives.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		9BF3936C06922F6C0080B028 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = AAUtilities.h;
+			path = glAArg/AAUtilities.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		9BF3936D06922F6C0080B028 = {
+			fileRef = 9BF3936A06922F6C0080B028;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		9BF3936E06922F6C0080B028 = {
+			fileRef = 9BF3936B06922F6C0080B028;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		9BF3936F06922F6C0080B028 = {
+			fileRef = 9BF3936C06922F6C0080B028;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+	};
+	rootObject = 20286C28FDCF999611CA2CEA;
+}
