@@ -12,14 +12,13 @@
 
 // useful macros
 #ifndef MIN
-    #define MIN(A,B)	({ __typeof__(A) __a = (A); __typeof__(B) __b = (B); __a < __b ? __a : __b; })
+    #define MIN(A,B)	( (A) < (B) ? (A) : (B) )
 #endif
 #ifndef MAX
-	#define MAX(A,B)	({ __typeof__(A) __a = (A); __typeof__(B) __b = (B); __a < __b ? __b : __a; })
+	#define MAX(A,B)	( (A) < (B) ? (B) : (A) )
 #endif
 #ifndef CLAMP
-	#define CLAMP(X,lo,hi)  ({ __typeof__(X) __x = (X); __typeof__(lo) __l = (lo); __typeof__(hi) __h = (hi);\
-								((__x) > (__h)) ? (__h) : (((__x) < (__l)) ? (__l) : (__x));  })
+	#define CLAMP(X,lo,hi)  ( (X) > (hi) ? (hi) : ( (X) < (lo) ? (lo) : (X) ) )
 #endif
 
 #if !defined(_WIN32)			// for matching cross-platform gl.h typecasts

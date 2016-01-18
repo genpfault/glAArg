@@ -74,7 +74,7 @@
 	#include <OpenGL/OpenGL.h>
 	#include <OpenGL/CGLMacro.h>
 #endif
-#include "AAPrimitives.h"
+#include "glAArg/AAPrimitives.h"
 
 
 // some convienence constants for the texture dimensions:
@@ -608,8 +608,7 @@ void APIENTRY glAALineWidth(float w) {
 		glAA_alpha_fix = MIN(1.0f, width);
 }
 
-
-inline void APIENTRY glAALineStipple (GLint factor, GLushort pattern) {
+void APIENTRY glAALineStipple (GLint factor, GLushort pattern) {
 	glAALineStipplePhase((GLfloat)factor, pattern, 0.0f);
 }
 
@@ -646,7 +645,7 @@ void APIENTRY glAALineStipplePhase (GLfloat factor, GLushort pattern, GLfloat ph
 }
 
 
-inline void APIENTRY glAAColor3f(float R, float G, float B){
+void APIENTRY glAAColor3f(float R, float G, float B){
 	glAAColor4f(R, G, B, 1.0f);
 }
 

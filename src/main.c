@@ -29,6 +29,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#endif
+#include <math.h>
+
 // performance test constants
 #define BATCH 1024
 #define TARGET_FPS 2
@@ -36,18 +41,18 @@
 
 
 // global function pointers for switching GL modes
-static void APIENTRY (*myBegin) (GLenum mode);
-static void APIENTRY (*myEnd) (void);
-static void APIENTRY (*myEnable) (GLenum cap);
-static void APIENTRY (*myDisable) (GLenum cap);
-static void APIENTRY (*myPointSize) (GLfloat size);
-static void APIENTRY (*myLineWidth) (GLfloat width);
-static void APIENTRY (*myLineStipple) (GLint factor, GLushort pattern);
-static void APIENTRY (*myTranslatef) (GLfloat x, GLfloat y, GLfloat z);
-static void APIENTRY (*myVertex2f) (GLfloat x, GLfloat y);
-static void APIENTRY (*myColor3f) (GLfloat red, GLfloat green, GLfloat blue);
-static void APIENTRY (*myColor4f) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-static void APIENTRY (*myFlush) (void);
+static void (APIENTRY *myBegin) (GLenum mode);
+static void (APIENTRY *myEnd) (void);
+static void (APIENTRY *myEnable) (GLenum cap);
+static void (APIENTRY *myDisable) (GLenum cap);
+static void (APIENTRY *myPointSize) (GLfloat size);
+static void (APIENTRY *myLineWidth) (GLfloat width);
+static void (APIENTRY *myLineStipple) (GLint factor, GLushort pattern);
+static void (APIENTRY *myTranslatef) (GLfloat x, GLfloat y, GLfloat z);
+static void (APIENTRY *myVertex2f) (GLfloat x, GLfloat y);
+static void (APIENTRY *myColor3f) (GLfloat red, GLfloat green, GLfloat blue);
+static void (APIENTRY *myColor4f) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+static void (APIENTRY *myFlush) (void);
 
 // global vars
 static int viewmode = 0;										// enum [1-7], matches GLUT menu
