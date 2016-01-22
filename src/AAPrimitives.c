@@ -132,7 +132,13 @@ static GLuint			glAA_fences[VAR_bufs];
 static CGLContextObj	cgl_ctx;					// for immediate mode macros
 #endif
 
-#pragma mark -
+#ifndef log2
+double log2( double n )
+{
+    return log( n ) / log( 2.0 );
+}
+#endif
+
 // private helper functions
 
 // -------------------------------------------------
@@ -161,6 +167,8 @@ bool introspectMIPGEN() {
 									  0,   0, 127, 127, 255,   0,   0,   0,
 									  0,   0,   0,   0,   0,   0,   0,   0,
 									  0,   0,   0,   0,   0,   0,   0,   0 };
+		unsigned char tex1[16];
+
 		glGenTextures(1, &texID[0]);
 		glBindTexture(GL_TEXTURE_2D, texID[0]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -174,7 +182,6 @@ bool introspectMIPGEN() {
 		if (hasCLIENTTEX) glPixelStorei(GL_UNPACK_CLIENT_STORAGE_APPLE, 0);		
 
 		// now check the results
-		unsigned char tex1[16];
 		glGetTexImage(GL_TEXTURE_2D, 1, GL_ALPHA, GL_UNSIGNED_BYTE, tex1);
 		if (((tex1[0] | tex1[1] | tex1[2] | tex1[3] |
 		      tex1[4] |                     tex1[7] |
@@ -191,7 +198,6 @@ bool introspectMIPGEN() {
 }
 
 
-#pragma mark -
 // glAA APIs
 
 // glAAInit/Exit should be called once at program begin/end to set up globals.
@@ -201,13 +207,15 @@ bool introspectMIPGEN() {
 //
 void APIENTRY glAAInit() {
 	int i;
-	for (i=1; i<=pdb; i++){							// lookup table has 4x the bitmap resolution
+	const GLubyte *extensions = NULL;
+    GLCoord2 temp;
+    for (i=1; i<=pdb; i++){							// lookup table has 4x the bitmap resolution
 		logtbl[i-1] = log((float)i/pdb);
 	}
 
 	glAASetContext();
 	// check renderer capabilities
-	const GLubyte *extensions = glGetString(GL_EXTENSIONS);
+	extensions = glGetString(GL_EXTENSIONS);
 	hasVAR = hasMIPGEN = hasCLIENTTEX = 0;
 
 	if (extensions) {
@@ -275,7 +283,9 @@ void APIENTRY glAAInit() {
 	// setup defaults
 	glAA_old_mode = -1;
 	glAAPointSize(1.0f);
-	glAAPointLight((GLCoord2){0.0f, 0.0f});
+    temp.x = 0.0f;
+    temp.y = 0.0f;
+    glAAPointLight(temp);
 	glAALineWidth(1.0f);
 	glAALineStipplePhase(1.0f, 0xFFFF, 0.0f);
 	glAADisable(GL_LINE_STIPPLE);
@@ -359,17 +369,19 @@ inline float ifun(float x, float y, float F) {   		// compute falloff at x,y wit
 
 void APIENTRY glAAGenerateAATex(float F, GLuint id, float alias) {			// compute the AA sphere
 	if (id < 8) {
-		if (!glAA_AAtex[id]) glAA_AAtex[id] = calloc(1, pdb*pdb);
-		unsigned char *texture = glAA_AAtex[id];
+		unsigned char *texture = NULL;
+        if (!glAA_AAtex[id]) glAA_AAtex[id] = (unsigned char*)calloc(1, pdb*pdb);
+		texture = glAA_AAtex[id];
 		if (texture) {
+			static unsigned char mipfix[4];
+			unsigned char fix = 0;
 
 			int x = phf-1;
 			int y = 0;
 			int ax;
 			float T = 0.0f;
-			float ys = 0.0f;
 			while (x > y) {
-				ys = (float)(y*y);
+				float ys = (float)(y*y);
 				float L = sqrt(prs - ys);
 				float D = ceilf(L)-L;
 				if (D < T) x--;
@@ -425,8 +437,7 @@ void APIENTRY glAAGenerateAATex(float F, GLuint id, float alias) {			// compute 
 			// correct, but for usability reasons we want 1 px wide lines to display at full 1.0 brightness.
 			// the following is an approximation sampling of the texture to do that, getting values that
 			// "look ok" for exponential falloff in either direction.
-			static unsigned char mipfix[4];
-			unsigned char fix = (texture[(int)(psz+phf*0.2f)+pct*pdb]+texture[(int)(psz+phf*0.7f)+pct*pdb])>>1;
+			fix = (texture[(int)(psz+phf*0.2f)+pct*pdb]+texture[(int)(psz+phf*0.7f)+pct*pdb])>>1;
 			mipfix[0]=mipfix[1]=mipfix[2]=mipfix[3]=fix;
 			glTexSubImage2D(GL_TEXTURE_2D, (int)log2(phf), 2, 2, 2, 2, GL_ALPHA, GL_UNSIGNED_BYTE, mipfix);
 			glTexSubImage2D(GL_TEXTURE_2D, (int)log2(psz), 1, 1, 1, 1, GL_ALPHA, GL_UNSIGNED_BYTE, mipfix);
@@ -468,7 +479,7 @@ void APIENTRY glAABegin(GLenum mode) {			// cgl_ctx must have been set prior to 
 }
 
 
-void APIENTRY glAAEnd() {
+void APIENTRY glAAEnd(void) {
 	glAA_old_mode = glAA_mode;
 	if ((glAA_mode == GL_LINE_STRIP) || (glAA_mode == GL_LINE_LOOP)) {
 		if (glAA_mode == GL_LINE_LOOP) glAAVertex2f(glAA_v[3].x, glAA_v[3].y);
@@ -482,7 +493,7 @@ void APIENTRY glAAEnd() {
 }
 
 
-void APIENTRY glAAFlush() {
+void APIENTRY glAAFlush(void) {
 #if defined(__APPLE__)
 	if (useVAR){
 		static int glAA_VAR_ip = 0;
@@ -551,13 +562,17 @@ void APIENTRY glAAPointSize(float s) {
 	
 	if (size != glAA_point_size) {
 		float r = MAX(1.0f, size);
+        float minr = 0.0f;
+        float maxr = 0.0f;
+        float den2 = 0.0f;
+        float ratio = 0.0f;
 		// find min/max using float trick (faster than floor/ceil or casts, only works for positive IEEE 32 bit floats)
-		float minr = (r+8388608.f)-8388608.f;
+		minr = (r+8388608.f)-8388608.f;
 		if (r < minr) minr -= 1.0f;
-		float maxr = (minr == r) ? minr : minr+1.0f;
+		maxr = (minr == r) ? minr : minr+1.0f;
 		// calculate the tex coords for a 0.5px outset, doing two divides at once
-		float den2 = 1.0f/(maxr*minr);
-		float ratio = phf*minr*den2;
+		den2 = 1.0f/(maxr*minr);
+		ratio = phf*minr*den2;
 		glAA_point_border = ratio+(phf*maxr*den2*1.5f-ratio)*(maxr-r);
 		glAA_point_maxr = maxr;
 		glAA_point_size = size;
@@ -593,13 +608,17 @@ void APIENTRY glAALineWidth(float w) {
 	
 	if (width != glAA_line_width) {
 		float r = MAX(1.0f, width);
+        float minr = 0.0f;
+        float maxr = 0.0f;
+        float den2 = 0.0f;
+        float ratio = 0.0f;
 		// find min/max using float trick (faster than floor/ceil or casts, only works for positive IEEE 32 bit floats)
-		float minr = (r+8388608.f)-8388608.f;
+		minr = (r+8388608.f)-8388608.f;
 		if (r < minr) minr -= 1.0f;
-		float maxr = (minr == r) ? minr : minr+1.0f;
+		maxr = (minr == r) ? minr : minr+1.0f;
 		// calculate the tex coords for a 0.5px outset, doing two divides at once
-		float den2 = 1.0f/(maxr*minr);
-		float ratio = phf*minr*den2;
+		den2 = 1.0f/(maxr*minr);
+		ratio = phf*minr*den2;
 		glAA_line_border = ratio+(phf*maxr*den2*1.5f-ratio)*(maxr-r);
 		glAA_line_maxr = maxr;
 		glAA_line_width = width;
@@ -686,12 +705,13 @@ void APIENTRY glAAVertex2f(float x, float y) {
 			float centy = y-(maxr+1.0f)*0.5f;
 
 			// adjust vertex alpha if needed
-			int c1 = glAA_v[glAA_vcl].rgba;
+            int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+            c1 = glAA_v[glAA_vcl].rgba;
 			if (alpha_fix < 1.0f) {
 				int int_alpha_fix = alpha_fix * 255.0f;
 				c1 = (c1 & 0xFFFFFF00) | (((c1 & 0x000000FF)*int_alpha_fix)>>8);
 			}
-			int c2 = c1, c3 = c1, c4 = c1;
+			c2 = c1, c3 = c1, c4 = c1;
 			
 			// apply saturation lighting if needed
 			if (glAA_enable_plight) {
@@ -707,6 +727,7 @@ void APIENTRY glAAVertex2f(float x, float y) {
 			
 			if (useVAR){
 				int i = glAA_VAR_i;
+                int room = 0;
 				glAA_VAR[i  ].rgba = c1;
 				glAA_VAR[i+1].rgba = c2;
 				glAA_VAR[i+2].rgba = c3;
@@ -720,7 +741,7 @@ void APIENTRY glAAVertex2f(float x, float y) {
 				glAA_VAR[i+1].x = glAA_VAR[i+2].x = centx+size;
 				glAA_VAR[i+2].y = glAA_VAR[i+3].y = centy+size;
 				glAA_VAR_i += 4; 
-				int room = VAR_size*(glAA_fence+1)-glAA_VAR_i;
+				room = VAR_size*(glAA_fence+1)-glAA_VAR_i;
 				if (room < 4) { glAA_VAR_skip = room; glAAFlush();}
 			}
 			else {	// immediate mode
@@ -748,21 +769,41 @@ void APIENTRY glAAVertex2f(float x, float y) {
 					glAA_v[3].x = x; glAA_v[3].y = y;
 				}
 			} else {
+				float x1 = 0.0f;
+				float y1 = 0.0f;
+				float bord = 0.0f;
+				float maxr = 0.0f;
+				float alpha_fix = 0.0f;
+				bool enable_stipple = false;
+				float perp_y = 0.0f;
+				float perp_x = 0.0f;
+				float perpd = 0.0f, leng = 0.0f;
+				float factor = 0.0f;
+				float width = 0.0f;
+				float unit_x = 0.0f;
+				float unit_y = 0.0f;
+				float parl_x = 0.0f;
+				float parl_y = 0.0f;
+				float s = 0.0f;
+				int b = 0;
+				int i = 0;
+				float lengm1 = 0.0f;
+				float dash = 0, gap = 0;
+
 				if (glAA_mode != GL_LINES){			// remember the new point
 					glAA_v[glAA_vi].x = x; glAA_v[glAA_vi].y = y;
 				}
-				float x1 = glAA_v[glAA_vp].x;		// shadow globals
-				float y1 = glAA_v[glAA_vp].y;
-				float bord = glAA_line_border;
-				float maxr = glAA_line_maxr;				
-				float alpha_fix = glAA_alpha_fix;
-				bool enable_stipple = glAA_enable_stipple;
+				x1 = glAA_v[glAA_vp].x;		// shadow globals
+				y1 = glAA_v[glAA_vp].y;
+				bord = glAA_line_border;
+				maxr = glAA_line_maxr;				
+				alpha_fix = glAA_alpha_fix;
+				enable_stipple = glAA_enable_stipple;
 
-				float perp_y = x1-x;
-				float perp_x = y-y1;
-				float perpd, leng;
+				perp_y = x1-x;
+				perp_x = y-y1;
 			
-				float factor = perp_y*perp_y+perp_x*perp_x;
+				factor = perp_y*perp_y+perp_x*perp_x;
 				if (factor) {
 					perpd = frsqrtes_nr(factor);
 					perp_y *= perpd;				// normalize to 1px
@@ -780,22 +821,28 @@ void APIENTRY glAAVertex2f(float x, float y) {
 					perpd = leng = 1.0f;
 				}
 
-				float width = (maxr+1.0f)*0.5f;
-				float unit_x = -perp_y;
-				float unit_y = perp_x;
+				width = (maxr+1.0f)*0.5f;
+				unit_x = -perp_y;
+				unit_y = perp_x;
 				perp_y *= width;
 				perp_x *= width;
-				float parl_x = -perp_y;
-				float parl_y =  perp_x;
+				parl_x = -perp_y;
+				parl_y =  perp_x;
 
-				float s = 0.0f;
-				int b = glAA_stipple_idx;
+				s = 0.0f;
+				b = glAA_stipple_idx;
 //		printf("start idx %d   ", b);
-				int i = glAA_VAR_i;
-				const float lengm1 = leng-1.0f;
-				float dash = FLT_MAX, gap = 0;
+				i = glAA_VAR_i;
+				lengm1 = leng-1.0f;
+				dash = FLT_MAX, gap = 0;
 				while (s <= lengm1) {
-				
+					float cw2 = 0.0f;
+					float cp2 = 0.0f;
+					float cw4 = 0.0f;
+					float cp4 = 0.0f;
+					int c1 = 0;
+					int c2 = 0;
+
 					if (enable_stipple){						// this chunk is buggy and in progress
 						if (s==0.0f) {
 							dash = glAA_stipple[b];
@@ -830,14 +877,14 @@ void APIENTRY glAAVertex2f(float x, float y) {
 					y = y1 + (dash-1.0f)*unit_y;
 
 					// find stipple weights
-					float cw2 = MIN(1.0f, (s+0.5f)*perpd);
-					float cp2 = MAX(0.0f, (s-width)*perpd);
-					float cw4 = MIN(1.0f, (s-0.5f+dash)*perpd);
-					float cp4 = MIN(1.0f, (s+dash+width)*perpd);
+					cw2 = MIN(1.0f, (s+0.5f)*perpd);
+					cp2 = MAX(0.0f, (s-width)*perpd);
+					cw4 = MIN(1.0f, (s-0.5f+dash)*perpd);
+					cp4 = MIN(1.0f, (s+dash+width)*perpd);
 			
 					// pick vertex colors and adjust alpha if needed
-					int c1 = (glAA_vc[glAA_vp]) ? glAA_v[glAA_vp].rgba : glAA_v[glAA_vcl].rgba;
-					int c2 = (glAA_vc[glAA_vi]) ? glAA_v[glAA_vi].rgba : glAA_v[glAA_vcl].rgba;
+					c1 = (glAA_vc[glAA_vp]) ? glAA_v[glAA_vp].rgba : glAA_v[glAA_vcl].rgba;
+					c2 = (glAA_vc[glAA_vi]) ? glAA_v[glAA_vi].rgba : glAA_v[glAA_vcl].rgba;
 					if (alpha_fix < 1.0f) {
 						int int_alpha_fix = alpha_fix * 255.0f;
 						c1 = (c1 & 0xFFFFFF00) | (((c1 & 0x000000FF)*int_alpha_fix)>>8);
@@ -845,6 +892,8 @@ void APIENTRY glAAVertex2f(float x, float y) {
 					}
 
 					if (useVAR){
+						int room = 0;
+
 						// should use altivec, here...
 						glAA_VAR[i  ].rgba = glAA_VAR[i+1].rgba = ntohl(lerpRGBA(c1, c2, cp2));
 						glAA_VAR[i+2].rgba = glAA_VAR[i+3].rgba = ntohl(lerpRGBA(c1, c2, cw2));
@@ -867,7 +916,7 @@ void APIENTRY glAAVertex2f(float x, float y) {
 						glAA_VAR[i+7].x = x+perp_x+parl_x;		glAA_VAR[i+7].y = y+perp_y+parl_y;
 			
 						glAA_VAR_i += 8;
-						int room = VAR_size*(glAA_fence+1)-glAA_VAR_i;
+						room = VAR_size*(glAA_fence+1)-glAA_VAR_i;
 						if (room < 8) { glAA_VAR_skip = room; glAAFlush();}
 
 						i = glAA_VAR_i;

@@ -62,10 +62,12 @@ static inline unsigned int lerpRGBA(const unsigned int d, const unsigned int s, 
 	unsigned int srcrb = s >> 8 & 0xFF00FF;
 	unsigned int dga = srcga - dstga;
 	unsigned int drb = srcrb - dstrb;
+    unsigned int ga = 0;
+    unsigned int rb = 0;
 	dga = (dga * ti) >> 8;  
 	drb = (drb * ti) >> 8;  
-	const unsigned int ga  = (dga + dstga)      & 0x00FF00FF;
-	const unsigned int rb  = (drb + dstrb) << 8 & 0xFF00FF00;
+	ga  = (dga + dstga)      & 0x00FF00FF;
+	rb  = (drb + dstrb) << 8 & 0xFF00FF00;
 	return ga | rb;
 }
 
@@ -78,10 +80,11 @@ static inline unsigned int scalesatRGB(const unsigned int c, const unsigned shor
 	unsigned int g = (((c >> 16) & 0x000000FF) * s) >> 8;
 	unsigned int b = (((c >>  8) & 0x000000FF) * s) >> 8;
 	unsigned int a =   c         & 0x000000FF;
+    unsigned int end = 0;
 	r = MIN(r, (unsigned int)255);
 	g = MIN(g, (unsigned int)255);
 	b = MIN(b, (unsigned int)255);
-	unsigned int end = (r<<24) | (g<<16) | (b<<8) | a;
+	end = (r<<24) | (g<<16) | (b<<8) | a;
 	return end;
 }
 

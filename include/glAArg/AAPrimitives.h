@@ -15,7 +15,16 @@
 extern "C" {
 #endif
 
+#ifdef _WIN32
+#ifndef __cplusplus
+typedef int bool;
+#define true  1
+#define false 0
+#endif
+#else
 #include <stdbool.h>
+#endif
+
 #if defined(__APPLE__)
 	#include <OpenGL/gl.h>
 	#include <OpenGL/glu.h>
@@ -67,8 +76,8 @@ void APIENTRY glAAInit();
 void APIENTRY glAAExit();
 void APIENTRY glAAGenerateAATex(float falloff, GLuint id, float alias);
 void APIENTRY glAABegin(GLenum mode);
-void APIENTRY glAAEnd();
-void APIENTRY glAAFlush();
+void APIENTRY glAAEnd(void);
+void APIENTRY glAAFlush(void);
 void APIENTRY glAAEnable(GLenum cap);
 void APIENTRY glAADisable(GLenum cap);
 void APIENTRY glAAPointSize(GLfloat size);

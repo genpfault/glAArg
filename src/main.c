@@ -253,6 +253,11 @@ void display(void) {
 		static GLCoord2 light = {0, 0};
 		static float xpos = 0, ypos = 0;
 		static float xvel = 0.0009, yvel = 0.0007;
+		float mip = 0, row = 0;
+		float tl = 0;
+		float br = 0;
+		extern float ifun(float, float, float);					// get at glAArg internal function
+        GLCoord2 temp;
 
 		// fix draw env
 		glMatrixMode(GL_PROJECTION);
@@ -266,9 +271,9 @@ void display(void) {
 		falloff += anim; if ((falloff > 1.0) || (falloff < -1.0)) anim *= -1;
 
 		// draw mipmaps for inspection, from 2x full size to 1 px	
-		float mip = phf*4, row = 0;
-		float tl = mip*0.5;
-		float br = mip;
+		mip = phf*4, row = 0;
+		tl = mip*0.5;
+		br = mip;
 
 		glColor4f(1.0, 1.0, 1.0, 1.0);
 		glTranslatef(0, 16, 0);									// position above text label
@@ -288,7 +293,6 @@ void display(void) {
 		glEnd();
 		
 		// draw falloff curve
-		extern float ifun(float, float, float);					// get at glAArg internal function
 		glTranslatef(0.5, 0.5, 0);								// align for lines
 		glAALineWidth(3);
 		glAAColor4f(1.0, 0.2, 0.2, 1.0);
@@ -310,7 +314,9 @@ void display(void) {
 			glAAVertex2f(240, 175);
 		glAAEnd();
 		glAAPointSize(phf);
-		glAAPointLight((GLCoord2){0.0, 0.0});
+        temp.x = 0.0;
+        temp.y = 0.0;
+		glAAPointLight( temp );
 		glAAColor4f(1.0, 1.0, 1.0, 1.0);
 		glAABegin(GL_POINTS);
 			glAAVertex2f((light.x+1)*240, (light.y+1)*175);
@@ -322,9 +328,11 @@ void display(void) {
 		// draw labels
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
-		unsigned char label[] = "Falloff: -0.00";
-		sprintf(&label[9], "%+0.2f", falloff);
-		drawstr(3, 3, label);
+        {
+		    unsigned char label[] = "Falloff: -0.00";
+		    sprintf(&label[9], "%+0.2f", falloff);
+		    drawstr(3, 3, label);
+        }
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 
@@ -419,8 +427,10 @@ void display(void) {
 		static char test[NUM_TESTS][16];
 		static char label[NUM_TESTS/2][16] = { "IM", "VARi" };
 		int count = 0, now = 0;
-		
-		if (t == 0)		t = glutGet(GLUT_ELAPSED_TIME);
+		float secs = 0;
+        float speed = 0;
+
+        if (t == 0)		t = glutGet(GLUT_ELAPSED_TIME);
 		if (mode < 4)	glTranslatef(0.5f, 0.5f, 0.0f);			// aligned for points, lines
 		if (mode < 2)	glAADisable(GLAA_VERTEX_ARRAY);			// force immediate mode
 		do {
@@ -439,7 +449,8 @@ void display(void) {
 				case 3: {
 					glAABegin(GL_LINES);
 					for (i=0; i<BATCH; i++){
-						glAALineWidth(ufrand(10.0f));		float x = ufrand(480), y = ufrand(350);   
+                        float x = 0.0f, y = 0.0f;
+						glAALineWidth(ufrand(10.0f));		x = ufrand(480), y = ufrand(350);   
 						glAAColor1ui(irand()|0x00000080);	glAAVertex2f(x, y);
 						glAAColor1ui(irand());				glAAVertex2f(x+frand(60), y+frand(43.75));
 					}
@@ -478,10 +489,10 @@ void display(void) {
 		
 		// measure elasped time after rendering has fully completed.
 		now = glutGet(GLUT_ELAPSED_TIME);
-		float secs = (now - t)/1000.0;							// time in seconds
+		secs = (now - t)/1000.0;							// time in seconds
 		t = now;
 
-		float speed = (BATCH*count/1000.0)/secs;				// thousands of primitives per second
+		speed = (BATCH*count/1000.0)/secs;				// thousands of primitives per second
 		sprintf(test[mode], "%.1f", time[mode]?(speed+time[mode])/2:speed);
 		time[mode] = speed;
 		// GLUT's timer function only has millisecond resolution, so we'll
@@ -648,7 +659,11 @@ void menu(int entry) {
 
 // set up inital GL state
 void initGL(void) {
-	// gl init
+	char version[256];
+	int i;
+    const GLubyte *extensions = NULL;
+
+    // gl init
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DITHER);
 	glShadeModel(GL_SMOOTH);
@@ -669,8 +684,6 @@ void initGL(void) {
 	setviewmode(4);												// this creates one glAArg texture
 
 	// build the renderer info string
-	char version[256];
-	int i;
 	strncpy(renderer, glGetString (GL_RENDERER), 255);
 	if (0 == strcmp(renderer, "Generic")) {
 		strncpy(renderer, "Apple Generic", 255);
@@ -690,7 +703,7 @@ void initGL(void) {
 	}
 	
 	// check for extensions that affect performance test
-	const GLubyte *extensions = glGetString(GL_EXTENSIONS);
+	extensions = glGetString(GL_EXTENSIONS);
 	if (extensions) {
 		hasVAR = (strstr((char *)extensions, "GL_APPLE_vertex_array_range") != NULL);
 	}
